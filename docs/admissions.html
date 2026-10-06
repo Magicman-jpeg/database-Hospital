@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admissions — MediCap</title>
+  <meta name="description" content="History of all admissions and discharges." />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class', theme: { extend: {
+      colors: { brand: { indigo: '#6366f1', sky: '#06b6d4', violet: '#8b5cf6', teal: '#14b8a6', amber: '#f59e0b' } },
+      fontFamily: {
+        sans: ['Inter','ui-sans-serif','system-ui','sans-serif'], mono: ['Fira Code','ui-monospace','monospace'],
+        display: ['"Playfair Display"','ui-serif','Georgia','serif'], grotesk: ['"Darker Grotesque"','Inter','sans-serif'],
+      },
+    } } };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@600;700;800;900&family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+  <link href="css/style.css" rel="stylesheet" />
+</head>
+
+<body class="relative min-h-screen bg-slate-950 text-slate-200 antialiased">
+  <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 py-8">
+    <header class="mb-8">
+      <p class="font-mono text-xs text-brand-sky mb-1">HISTORY</p>
+      <h1 class="heading-grotesk text-5xl">Admissions Log</h1>
+    </header>
+
+    <div class="flex flex-wrap items-center gap-3 mb-6">
+      <select id="f-status" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-brand-sky">
+        <option value="">All</option><option value="Active">Active only</option><option value="Discharged">Discharged only</option>
+      </select>
+      <span id="count" class="text-sm text-slate-400"></span>
+    </div>
+
+    <ol id="timeline" class="relative border-l border-slate-800 ml-3 space-y-6"></ol>
+    <p id="empty" class="hidden text-slate-500 text-sm py-10 text-center">No admissions to show.</p>
+  </main>
+
+  <script type="module" src="js/admissions.js"></script>
+</body>
+</html>

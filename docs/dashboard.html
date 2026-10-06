@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — MediCap</title>
+  <meta name="description" content="Live hospital room and bed capacity dashboard." />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class', theme: { extend: {
+      colors: { brand: { indigo: '#6366f1', sky: '#06b6d4', violet: '#8b5cf6', teal: '#14b8a6', amber: '#f59e0b' } },
+      fontFamily: {
+        sans: ['Inter','ui-sans-serif','system-ui','sans-serif'], mono: ['Fira Code','ui-monospace','monospace'],
+        display: ['"Playfair Display"','ui-serif','Georgia','serif'], grotesk: ['"Darker Grotesque"','Inter','sans-serif'],
+      },
+    } } };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@600;700;800;900&family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+  <link href="css/style.css" rel="stylesheet" />
+</head>
+
+<body class="relative min-h-screen bg-slate-950 text-slate-200 antialiased">
+  <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 py-8">
+    <header class="flex flex-wrap items-end justify-between gap-4 mb-8">
+      <div>
+        <p class="font-mono text-xs text-brand-sky mb-1">HOSPITAL OPERATIONS</p>
+        <h1 class="heading-grotesk text-5xl">Live Capacity Grid</h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="reset-btn" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-700 hover:border-brand-sky hover:text-brand-sky transition-colors text-sm font-medium">
+          <i class="ri-restart-line"></i> Reset Demo
+        </button>
+        <button id="admit-btn" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-indigo hover:bg-indigo-500 text-white font-medium shadow-lg shadow-brand-indigo/25 transition-all hover:-translate-y-0.5">
+          <i class="ri-user-add-line"></i> Admit Patient
+        </button>
+      </div>
+    </header>
+
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8" id="stats" aria-label="Capacity summary"></section>
+
+    <section class="flex flex-wrap items-center gap-3 mb-6" aria-label="Filters">
+      <div class="flex items-center gap-2 text-sm text-slate-400"><i class="ri-filter-3-line"></i> Filter</div>
+      <select id="f-department" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-brand-sky"><option value="">All Departments</option></select>
+      <select id="f-type" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-brand-sky">
+        <option value="">All Room Types</option><option>ICU</option><option>Private</option><option>Semi-Private</option><option>General Ward</option>
+      </select>
+      <select id="f-status" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-brand-sky">
+        <option value="">All Statuses</option><option>Available</option><option>Full</option><option>Maintenance</option>
+      </select>
+      <button id="f-clear" class="text-sm text-slate-400 hover:text-brand-sky underline-offset-2 hover:underline">Clear</button>
+    </section>
+
+    <section id="rooms" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5" aria-live="polite"></section>
+    <p id="rooms-empty" class="hidden text-slate-500 text-sm py-10 text-center">No rooms match the current filters.</p>
+  </main>
+
+  <!-- Admit modal -->
+  <div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" data-close></div>
+    <div class="relative w-full max-w-md bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl card-enter">
+      <div class="flex items-center justify-between mb-5">
+        <h3 id="modal-title" class="font-display text-2xl font-bold">Admit a Patient</h3>
+        <button data-close aria-label="Close" class="w-9 h-9 grid place-items-center rounded-lg hover:bg-slate-800"><i class="ri-close-line text-xl"></i></button>
+      </div>
+      <form id="admit-form" class="space-y-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div><label for="first_name" class="block text-sm text-slate-400 mb-1">First name</label>
+            <input id="first_name" name="first_name" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 focus:border-brand-sky" /></div>
+          <div><label for="last_name" class="block text-sm text-slate-400 mb-1">Last name</label>
+            <input id="last_name" name="last_name" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 focus:border-brand-sky" /></div>
+        </div>
+        <div><label for="contact_number" class="block text-sm text-slate-400 mb-1">Contact number</label>
+          <input id="contact_number" name="contact_number" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 focus:border-brand-sky" /></div>
+        <div><label for="room_id" class="block text-sm text-slate-400 mb-1">Assign room <span class="text-slate-500">(available only)</span></label>
+          <select id="room_id" name="room_id" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 focus:border-brand-sky"><option value="">Select a room…</option></select></div>
+        <p id="modal-error" class="hidden text-sm text-red-400"></p>
+        <div class="flex gap-3 pt-2">
+          <button type="button" data-close class="flex-1 px-4 py-2.5 rounded-lg border border-slate-700 hover:bg-slate-800 font-medium">Cancel</button>
+          <button type="submit" class="flex-1 px-4 py-2.5 rounded-lg bg-brand-indigo hover:bg-indigo-500 text-white font-medium">Admit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="js/dashboard.js"></script>
+</body>
+</html>
